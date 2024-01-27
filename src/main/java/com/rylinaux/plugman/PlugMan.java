@@ -228,21 +228,23 @@ public class PlugMan extends JavaPlugin {
         if (this.pluginUtil instanceof PaperPluginUtil) {
             Bukkit.getLogger().warning("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             Bukkit.getLogger().warning("It seems like you're running on paper.");
-            Bukkit.getLogger().warning("This may cause issues.");
-            Bukkit.getLogger().warning("If you encounter any issues, please join my dicord: https://discord.gg/dBhfCzdZxq");
+            Bukkit.getLogger().warning("PlugManX cannot interact with paper-plugins, yet.");
+            Bukkit.getLogger().warning("Also, if you encounter any issues, please join my discord: https://discord.gg/GxEFhVY6ff");
             Bukkit.getLogger().warning("Or create an issue on GitHub: https://github.com/TheBlackEntity/PlugMan");
             Bukkit.getLogger().warning("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         }
 
         PlugMan.instance = this;
 
-        File messagesFile = new File("plugins" + File.separator + "PlugManX", "messages.yml");
+        File messagesFile = new File(getDataFolder(), "messages.yml");
+        if (!messagesFile.exists())
+            saveResource("messages.yml", true);
 
-        if (!messagesFile.exists()) this.saveResource("messages.yml", true);
+        if (!new File(getDataFolder(), "messages_jp.yml").exists())
+            saveResource("messages_jp.yml", true);
 
-        File jpMessagesFile = new File("plugins" + File.separator + "PlugManX", "messages_jp.yml");
-
-        if (!jpMessagesFile.exists()) this.saveResource("messages_jp.yml", true);
+        if (!new File(getDataFolder(), "messages_de.yml").exists())
+            saveResource("messages_de.yml", true);
 
         FileConfiguration messageConfiguration = YamlConfiguration.loadConfiguration(messagesFile);
 
@@ -425,6 +427,28 @@ public class PlugMan extends JavaPlugin {
             new File("plugins" + File.separator + "PlugManX", "config.yml").renameTo(new File("plugins" + File.separator + "PlugManX", "config.yml.old-" + System.currentTimeMillis()));
             this.saveDefaultConfig();
             Bukkit.getLogger().info("New config created!");
+        }
+
+        int configVersion = 0;
+
+        if (getConfig().isSet("version")) {
+            configVersion = getConfig().getInt("version");
+        }
+
+        if (configVersion < 1) {
+            getConfig().set("version", 1);
+            getConfig().set("disable-download-command", true);
+
+            saveConfig();
+
+            reloadConfig();
+
+
+            Bukkit.getLogger().warning("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            Bukkit.getLogger().warning("PlugManX disabled the download command for you!");
+            Bukkit.getLogger().warning("If you don't use it, please keep it disabled, as it can expose your server to vulnerabilities!");
+            Bukkit.getLogger().warning("This message will only display once!");
+            Bukkit.getLogger().warning("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         }
 
         this.ignoredPlugins = this.getConfig().getStringList("ignored-plugins");
